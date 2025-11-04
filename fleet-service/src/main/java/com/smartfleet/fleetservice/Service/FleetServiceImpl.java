@@ -44,6 +44,9 @@ public class FleetServiceImpl implements FleetService {
     @Override
     public void delete(Long id) {
 
+        if (!repo.existsById(id)) {
+            throw new RuntimeException("Fleet not found with ID: " + id);
+        }
         repo.deleteById(id);
 
     }
