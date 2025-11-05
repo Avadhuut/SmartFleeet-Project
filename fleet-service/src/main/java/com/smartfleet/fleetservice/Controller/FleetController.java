@@ -16,6 +16,11 @@ public class FleetController {
 
     private final FleetService service;
 
+    @GetMapping("/{id}")
+    public FleetResponse getById(@PathVariable Long id) {
+        return service.getById(id);
+    }
+
     @GetMapping
     public List<FleetResponse> getAll() {
         return service.getAll();

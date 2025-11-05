@@ -15,10 +15,16 @@ public class DriverController {
 
     private final DriverService service;
 
+    @GetMapping("/{id}")
+    public DriverResponse getById(@PathVariable Long id) {
+        return service.getById(id);
+    }
+
     @GetMapping
     public List<DriverResponse> getAll() {
         return service.getAll();
     }
+
 
     @PostMapping
     public DriverResponse add(@Valid @RequestBody DriverRequest request) {

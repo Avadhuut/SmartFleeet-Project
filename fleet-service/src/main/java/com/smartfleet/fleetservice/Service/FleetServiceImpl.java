@@ -50,4 +50,11 @@ public class FleetServiceImpl implements FleetService {
         repo.deleteById(id);
 
     }
+
+    @Override
+    public FleetResponse getById(Long id) {
+        Fleet fleet = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Fleet not found with id: " + id));
+        return new FleetResponse(fleet.getId(), fleet.getVehicleNumber(), fleet.getType(), fleet.getStatus());
+    }
 }

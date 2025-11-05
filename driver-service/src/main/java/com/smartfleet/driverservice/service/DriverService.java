@@ -10,4 +10,6 @@ public interface DriverService {
     DriverResponse add(DriverRequest request);
     DriverResponse update(Long id, DriverRequest request);
     void delete(Long id);
+
+    DriverResponse getById(Long id);
 }

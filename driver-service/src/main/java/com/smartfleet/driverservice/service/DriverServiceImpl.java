@@ -47,4 +47,18 @@ public class DriverServiceImpl implements DriverService {
         repo.deleteById(id);
 
     }
+
+    @Override
+    public DriverResponse getById(Long id) {
+        var driver = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Driver not found with id: " + id));
+
+        return DriverResponse.builder()
+                .id(driver.getId())
+                .name(driver.getName())
+                .licenseNumber(driver.getLicenseNumber())
+                .status(driver.getStatus())
+                .build();
+
+            }
 }

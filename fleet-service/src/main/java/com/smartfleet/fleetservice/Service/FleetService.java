@@ -10,4 +10,7 @@ public interface FleetService {
     FleetResponse add(FleetRequest request);
     FleetResponse update(Long id, FleetRequest request);
     void delete(Long id);
+
+    FleetResponse getById(Long id);
+
 }
