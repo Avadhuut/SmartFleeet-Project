@@ -18,17 +18,35 @@ public class TripController {
 
     private final TripService tripService;
 
+    /**
+     * Create a new trip.
+     */
     @PostMapping("/create")
     public ResponseEntity<TripResponse> createTrip(@Valid @RequestBody CreateTripRequest request) {
         TripResponse trip = tripService.createTrip(request);
         return ResponseEntity.created(URI.create("/trip/" + trip.getId())).body(trip);
     }
 
+    /**
+     * Complete a trip by ID.
+     */
+    @PostMapping("/complete/{tripId}")
+    public ResponseEntity<TripResponse> completeTrip(@PathVariable Long tripId) {
+        TripResponse trip = tripService.completeTrip(tripId);
+        return ResponseEntity.ok(trip);
+    }
+
+    /**
+     * Get all trips.
+     */
     @GetMapping("/all")
     public List<TripResponse> getAllTrips() {
         return tripService.getAllTrips();
     }
 
+    /**
+     * Get a trip by ID.
+     */
     @GetMapping("/{id}")
     public TripResponse getTripById(@PathVariable Long id) {
         return tripService.getTripById(id);

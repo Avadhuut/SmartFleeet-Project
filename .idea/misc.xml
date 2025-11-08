@@ -9,6 +9,7 @@
         <option value="$PROJECT_DIR$/trip-service/pom.xml" />
         <option value="$PROJECT_DIR$/tracking-service/pom.xml" />
         <option value="$PROJECT_DIR$/alert-service/pom.xml" />
+        <option value="$PROJECT_DIR$/analytics-service/pom.xml" />
       </list>
     </option>
   </component>

@@ -9,13 +9,14 @@
         <outputRelativeToContentRoot value="true" />
         <module name="trip-service" />
       </profile>
-      <profile name="Annotation profile for alert-service" enabled="true">
+      <profile name="Annotation profile for analytics-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
+        <module name="analytics-service" />
         <module name="fleet-service" />
         <module name="alert-service" />
         <module name="driver-service" />
@@ -26,6 +27,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="alert-service" options="-parameters" />
+      <module name="analytics-service" options="-parameters" />
       <module name="driver-service" options="-parameters" />
       <module name="fleet-service" options="-parameters" />
       <module name="tracking-service" options="-parameters" />

@@ -5,14 +5,19 @@ import com.smartfleet.trip_service.client.FleetClient;
 import com.smartfleet.trip_service.client.TrackingClient;
 import com.smartfleet.trip_service.dto.*;
 import com.smartfleet.trip_service.entity.Trip;
+import com.smartfleet.trip_service.events.TripStartEvent;
+import com.smartfleet.trip_service.events.TripCompleteEvent;
 import com.smartfleet.trip_service.exception.BadRequestException;
 import com.smartfleet.trip_service.exception.NotFoundException;
 import com.smartfleet.trip_service.model.TripStatus;
+import com.smartfleet.trip_service.producer.TripEventProducer;
 import com.smartfleet.trip_service.repository.TripRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -22,14 +27,16 @@ public class TripService {
     private final TripRepository tripRepository;
     private final DriverClient driverClient;
     private final FleetClient fleetClient;
-
     private final TrackingClient trackingClient;
+    private final TripEventProducer tripEventProducer;
 
-
+    /**
+     * Create a new trip, validate driver/vehicle, start tracking, and send Kafka event.
+     */
     @Transactional
     public TripResponse createTrip(CreateTripRequest request) {
 
-        // 1️⃣ Fetch driver and vehicle using Feign clients
+        // 1️⃣ Fetch driver and vehicle details via Feign clients
         DriverDto driver;
         VehicleDto vehicle;
 
@@ -65,19 +72,62 @@ public class TripService {
         // 4️⃣ Save to DB
         Trip savedTrip = tripRepository.save(trip);
 
-        // 5️⃣ Notify Tracking-Service to start tracking this trip
+        // 5️⃣ Notify Tracking-Service (optional)
         try {
-            trackingClient.startTracking(savedTrip.getId(), 18.5204, 73.8567); // static start coords for now
+            trackingClient.startTracking(savedTrip.getId(), 18.5204, 73.8567);
             System.out.println("✅ Tracking started for Trip ID: " + savedTrip.getId());
         } catch (Exception e) {
             System.err.println("⚠️ Failed to notify tracking-service for Trip ID: " + savedTrip.getId());
-            e.printStackTrace();
         }
 
-        // 6 Convert entity to response DTO
+        // 6️⃣ Send Kafka Event - trip.start
+        tripEventProducer.sendTripStart(new TripStartEvent(
+                savedTrip.getId(),
+                savedTrip.getDriverId(),
+                savedTrip.getVehicleId(),
+                savedTrip.getTripName(),
+                LocalDateTime.now().toString()
+        ));
+
+        // 7️⃣ Convert and return response
         return toResponse(savedTrip);
     }
 
+    /**
+     * Mark a trip as completed and send Kafka event.
+     */
+    @Transactional
+    public TripResponse completeTrip(Long tripId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new NotFoundException("Trip not found with ID: " + tripId));
+
+        if (trip.getStatus() == TripStatus.COMPLETED) {
+            throw new BadRequestException("Trip is already completed");
+        }
+
+        // Update trip status
+        trip.setStatus(TripStatus.COMPLETED);
+        Trip updatedTrip = tripRepository.save(trip);
+
+        // Simulate trip duration (you can compute real one later)
+        long durationMinutes = (long) (60 + Math.random() * 60);
+
+        // Send Kafka Event - trip.complete
+        tripEventProducer.sendTripComplete(new TripCompleteEvent(
+                updatedTrip.getId(),
+                updatedTrip.getDriverId(),
+                updatedTrip.getVehicleId(),
+                updatedTrip.getTripName(),
+                durationMinutes,
+                LocalDateTime.now().toString()
+        ));
+
+        return toResponse(updatedTrip);
+    }
+
+    /**
+     * Fetch all trips.
+     */
     public List<TripResponse> getAllTrips() {
         return tripRepository.findAll()
                 .stream()
@@ -85,12 +135,18 @@ public class TripService {
                 .toList();
     }
 
+    /**
+     * Fetch a single trip by ID.
+     */
     public TripResponse getTripById(Long id) {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Trip not found with ID: " + id));
         return toResponse(trip);
     }
 
+    /**
+     * Convert entity to response DTO.
+     */
     private TripResponse toResponse(Trip trip) {
         return TripResponse.builder()
                 .id(trip.getId())
