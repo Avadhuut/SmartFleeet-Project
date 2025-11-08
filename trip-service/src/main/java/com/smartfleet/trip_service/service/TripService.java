@@ -2,6 +2,7 @@ package com.smartfleet.trip_service.service;
 
 import com.smartfleet.trip_service.client.DriverClient;
 import com.smartfleet.trip_service.client.FleetClient;
+import com.smartfleet.trip_service.client.TrackingClient;
 import com.smartfleet.trip_service.dto.*;
 import com.smartfleet.trip_service.entity.Trip;
 import com.smartfleet.trip_service.exception.BadRequestException;
@@ -21,6 +22,9 @@ public class TripService {
     private final TripRepository tripRepository;
     private final DriverClient driverClient;
     private final FleetClient fleetClient;
+
+    private final TrackingClient trackingClient;
+
 
     @Transactional
     public TripResponse createTrip(CreateTripRequest request) {
@@ -61,7 +65,16 @@ public class TripService {
         // 4️⃣ Save to DB
         Trip savedTrip = tripRepository.save(trip);
 
-        // 5️⃣ Convert entity to response DTO
+        // 5️⃣ Notify Tracking-Service to start tracking this trip
+        try {
+            trackingClient.startTracking(savedTrip.getId(), 18.5204, 73.8567); // static start coords for now
+            System.out.println("✅ Tracking started for Trip ID: " + savedTrip.getId());
+        } catch (Exception e) {
+            System.err.println("⚠️ Failed to notify tracking-service for Trip ID: " + savedTrip.getId());
+            e.printStackTrace();
+        }
+
+        // 6 Convert entity to response DTO
         return toResponse(savedTrip);
     }
 
