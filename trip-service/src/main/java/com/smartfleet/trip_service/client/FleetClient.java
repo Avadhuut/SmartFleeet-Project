@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "fleet-service", url = "${client.fleet-service.url}")
+@FeignClient(name = "FLEET-SERVICE")
 public interface FleetClient {
 
     @GetMapping("/api/fleet/{id}")

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "tracking-service", url = "${client.tracking-service.url}")
+@FeignClient(name = "TRACKING-SERVICE")
 public interface TrackingClient {
 
     @PostMapping("/tracking/start/{tripId}")
