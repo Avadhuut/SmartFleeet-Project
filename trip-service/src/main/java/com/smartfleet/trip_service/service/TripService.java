@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -72,12 +72,22 @@ public class TripService {
         // 4️⃣ Save to DB
         Trip savedTrip = tripRepository.save(trip);
 
-        // 5️⃣ Notify Tracking-Service (optional)
+        // 5️⃣ Notify Tracking-Service
         try {
-            trackingClient.startTracking(savedTrip.getId(), 18.5204, 73.8567);
-            System.out.println("✅ Tracking started for Trip ID: " + savedTrip.getId());
+            // Create a tracking request with hardcoded latitude and longitude
+            StartTrackingRequest trackingRequest = new StartTrackingRequest(
+                    savedTrip.getId(),        // Trip ID
+                    savedTrip.getVehicleId(), // Vehicle ID (optional)
+                    18.5204,                  // Hardcoded Latitude (Pune)
+                    73.8567                   // Hardcoded Longitude (Pune)
+            );
+
+            trackingClient.startTracking(trackingRequest);
+            System.out.println("Tracking started for Trip ID: " + savedTrip.getId());
+
         } catch (Exception e) {
-            System.err.println("⚠️ Failed to notify tracking-service for Trip ID: " + savedTrip.getId());
+            System.err.println(" Failed to notify Tracking-Service for Trip ID: " + savedTrip.getId());
+            e.printStackTrace();
         }
 
         // 6️⃣ Send Kafka Event - trip.start
@@ -105,14 +115,25 @@ public class TripService {
             throw new BadRequestException("Trip is already completed");
         }
 
-        // Update trip status
+        // 1) Update trip status and save
         trip.setStatus(TripStatus.COMPLETED);
         Trip updatedTrip = tripRepository.save(trip);
 
-        // Simulate trip duration (you can compute real one later)
+        // 2) Optionally compute duration
         long durationMinutes = (long) (60 + Math.random() * 60);
 
-        // Send Kafka Event - trip.complete
+        // 3) Tell Tracking-Service to stop tracking (best-effort)
+        try {
+            trackingClient.stopTracking(updatedTrip.getId());
+            System.out.println("Tracking stopped for Trip ID: " + updatedTrip.getId());
+        } catch (Exception e) {
+            // Do not fail the whole transaction because of a tracking service issue.
+            // Log and continue. If you want stronger guarantees, consider retry policy.
+            System.err.println("Failed to stop tracking for Trip ID: " + updatedTrip.getId());
+            e.printStackTrace();
+        }
+
+        // 4) Send Kafka Event - trip.complete
         tripEventProducer.sendTripComplete(new TripCompleteEvent(
                 updatedTrip.getId(),
                 updatedTrip.getDriverId(),

@@ -12,7 +12,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/trip")
+@RequestMapping("/api/trip")
 @RequiredArgsConstructor
 public class TripController {
 
@@ -21,7 +21,7 @@ public class TripController {
     /**
      * Create a new trip.
      */
-    @PostMapping("/create")
+    @PostMapping()
     public ResponseEntity<TripResponse> createTrip(@Valid @RequestBody CreateTripRequest request) {
         TripResponse trip = tripService.createTrip(request);
         return ResponseEntity.created(URI.create("/trip/" + trip.getId())).body(trip);
@@ -30,7 +30,7 @@ public class TripController {
     /**
      * Complete a trip by ID.
      */
-    @PostMapping("/complete/{tripId}")
+    @PostMapping("/{tripId}")
     public ResponseEntity<TripResponse> completeTrip(@PathVariable Long tripId) {
         TripResponse trip = tripService.completeTrip(tripId);
         return ResponseEntity.ok(trip);
@@ -39,7 +39,7 @@ public class TripController {
     /**
      * Get all trips.
      */
-    @GetMapping("/all")
+    @GetMapping()
     public List<TripResponse> getAllTrips() {
         return tripService.getAllTrips();
     }

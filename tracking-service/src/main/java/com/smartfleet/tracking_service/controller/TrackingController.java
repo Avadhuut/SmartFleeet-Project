@@ -1,34 +1,39 @@
 package com.smartfleet.tracking_service.controller;
 
-import com.smartfleet.tracking_service.dto.TrackingUpdate;
-import com.smartfleet.tracking_service.service.TrackingService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import com.smartfleet.tracking_service.dto.StartTrackingRequest;
+import com.smartfleet.tracking_service.model.Tracker;
+import com.smartfleet.tracking_service.service.TrackingManager;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Public API for tracking updates.
- */
+import java.net.URI;
+import java.util.Collection;
+
 @RestController
-@RequestMapping("/tracking")
-@RequiredArgsConstructor
+@RequestMapping("/api/tracking")
 public class TrackingController {
 
-    private final TrackingService service;
+    private final TrackingManager trackingManager;
 
-    /** save + publish update */
-    @PostMapping("/update")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void update(@Valid @RequestBody TrackingUpdate body) {
-        service.processUpdate(body);
+    public TrackingController(TrackingManager trackingManager) {
+        this.trackingManager = trackingManager;
     }
 
-    /** get latest location */
-    @GetMapping("/{tripId}")
-    public TrackingUpdate latest(@PathVariable Long tripId) {
-        TrackingUpdate t = service.latest(tripId);
-        if (t == null) throw new RuntimeException("No location found for trip " + tripId);
-        return t;
+    @PostMapping("/start")
+    public ResponseEntity<Void> start(@RequestBody StartTrackingRequest req) {
+        trackingManager.startTracking(req);
+        return ResponseEntity.created(URI.create("/api/tracking/" + req.getTripId())).build();
+    }
+
+    @PostMapping("/stop/{tripId}")
+    public ResponseEntity<Void> stop(@PathVariable Long tripId) {
+        trackingManager.stopTracking(tripId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Optional: view active trips
+    @GetMapping("/active")
+    public Collection<Tracker> getActive() {
+        return trackingManager.getActiveTrackers();
     }
 }

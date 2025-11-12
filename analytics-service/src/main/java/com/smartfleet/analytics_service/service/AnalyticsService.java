@@ -18,7 +18,7 @@ public class AnalyticsService {
     private final AnalyticsRepository repo;
 
     /**
-     * ✅ Safely get today's summary.
+     * Safely get today's summary.
      * If it doesn't exist, create one.
      * If duplicates somehow exist, merge and keep only one.
      */
@@ -67,7 +67,7 @@ public class AnalyticsService {
     }
 
     /**
-     * ✅ Handles 'trip.start' Kafka event.
+     *  Handles 'trip.start' Kafka event.
      */
     @Transactional
     public void handleTripStart(TripStart event) {
@@ -78,7 +78,7 @@ public class AnalyticsService {
             System.out.println("📈 trip.start processed: tripId=" + event.getTripId()
                     + " → totalTrips=" + summary.getTotalTrips());
         } catch (Exception e) {
-            System.err.println("❌ Error updating totalTrips: " + e.getMessage());
+            System.err.println(" Error updating totalTrips: " + e.getMessage());
         }
     }
 
@@ -106,7 +106,7 @@ public class AnalyticsService {
                     + " → completedTrips=" + summary.getCompletedTrips()
                     + ", avg=" + summary.getAvgTripDuration());
         } catch (Exception e) {
-            System.err.println("❌ Error updating trip completion: " + e.getMessage());
+            System.err.println("Error updating trip completion: " + e.getMessage());
         }
     }
 }
