@@ -16,7 +16,7 @@ public class TrackingProducer {
 
     public void sendTrackingUpdate(TrackingUpdate update) {
         kafkaTemplate.send(TOPIC, update.getTripId().toString(), update);
-        System.out.println("🚀 [Kafka] Sent tracking update → Trip: " + update.getTripId() +
+        System.out.println("[Kafka] Sent tracking update → Trip: " + update.getTripId() +
                 " | Lat: " + update.getLatitude() +
                 " | Lon: " + update.getLongitude() +
                 " | Time: " + update.getTimestamp());
