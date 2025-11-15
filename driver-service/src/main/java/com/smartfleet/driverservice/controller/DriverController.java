@@ -4,11 +4,14 @@ import com.smartfleet.driverservice.dto.*;
 import com.smartfleet.driverservice.service.DriverService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/driver")
 @RequiredArgsConstructor
@@ -49,6 +52,20 @@ public class DriverController {
 
         return ResponseEntity.ok(response); // 200 OK with message
     }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<DriverResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        String newStatus = body.get("status");
+        log.info("API Request: Update driver status -> id={}, status={}", id, newStatus);
+
+        DriverResponse updated = service.updateStatus(id, newStatus);
+
+        return ResponseEntity.ok(updated);
+    }
+
 
 
 }

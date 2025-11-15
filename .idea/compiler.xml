@@ -20,17 +20,18 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
         <module name="analytics-service" />
-        <module name="fleet-service" />
         <module name="alert-service" />
         <module name="driver-service" />
       </profile>
-      <profile name="Annotation profile for tracking-service" enabled="true">
+      <profile name="Annotation profile for auth-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
+        <module name="auth-service" />
+        <module name="fleet-service" />
         <module name="tracking-service" />
       </profile>
     </annotationProcessing>
@@ -41,6 +42,7 @@
       <module name="Service-registry" options="-parameters" />
       <module name="alert-service" options="-parameters" />
       <module name="analytics-service" options="-parameters" />
+      <module name="auth-service" options="-parameters" />
       <module name="driver-service" options="-parameters" />
       <module name="fleet-service" options="-parameters" />
       <module name="tracking-service" options="-parameters" />

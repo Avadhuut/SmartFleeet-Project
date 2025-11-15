@@ -68,4 +68,18 @@ public class FleetController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<FleetResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        String newStatus = body.get("status");
+
+        log.info("API Request → Update Fleet Status | id={}, status={}", id, newStatus);
+
+        FleetResponse updated = service.updateStatus(id, newStatus);
+
+        return ResponseEntity.ok(updated);
+    }
+
 }

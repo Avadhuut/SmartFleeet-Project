@@ -5,12 +5,14 @@ import com.smartfleet.trip_service.dto.TripResponse;
 import com.smartfleet.trip_service.service.TripService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/trip")
 @RequiredArgsConstructor
@@ -21,10 +23,18 @@ public class TripController {
     /**
      * Create a new trip.
      */
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<TripResponse> createTrip(@Valid @RequestBody CreateTripRequest request) {
+
+        log.info("API Request → Create Trip | tripName={}, driverId={}, vehicleId={}",
+                request.getTripName(), request.getDriverId(), request.getVehicleId());
+
         TripResponse trip = tripService.createTrip(request);
-        return ResponseEntity.created(URI.create("/trip/" + trip.getId())).body(trip);
+
+        log.info("Trip Created Successfully → tripId={}", trip.getId());
+
+        return ResponseEntity.created(URI.create("/api/trip/" + trip.getId()))
+                .body(trip);
     }
 
     /**
@@ -32,15 +42,24 @@ public class TripController {
      */
     @PostMapping("/{tripId}")
     public ResponseEntity<TripResponse> completeTrip(@PathVariable Long tripId) {
+
+        log.info("API Request → Complete Trip | tripId={}", tripId);
+
         TripResponse trip = tripService.completeTrip(tripId);
+
+        log.info("Trip Completed Successfully → tripId={}", trip.getId());
+
         return ResponseEntity.ok(trip);
     }
 
     /**
      * Get all trips.
      */
-    @GetMapping()
+    @GetMapping
     public List<TripResponse> getAllTrips() {
+
+        log.info("API Request → Get All Trips");
+
         return tripService.getAllTrips();
     }
 
@@ -49,6 +68,9 @@ public class TripController {
      */
     @GetMapping("/{id}")
     public TripResponse getTripById(@PathVariable Long id) {
+
+        log.info("API Request → Get Trip by ID | tripId={}", id);
+
         return tripService.getTripById(id);
     }
 }

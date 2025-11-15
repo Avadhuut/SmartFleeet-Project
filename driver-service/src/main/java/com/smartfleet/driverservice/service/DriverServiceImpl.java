@@ -146,4 +146,30 @@ public class DriverServiceImpl implements DriverService {
                 .status(driver.getStatus())
                 .build();
     }
+
+    @Override
+    @Transactional
+    public DriverResponse updateStatus(Long id, String status) {
+
+        log.info("Updating driver status -> id={}, status={}", id, status);
+
+        var driver = repo.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Driver not found for status update -> id={}", id);
+                    return new com.smartfleet.driverservice.exception.DriverNotFoundException("Driver not found with id: " + id);
+                });
+
+        driver.setStatus(status);
+        var updated = repo.save(driver);
+
+        log.info("Driver status updated -> id={}, status={}", updated.getId(), updated.getStatus());
+
+        return DriverResponse.builder()
+                .id(updated.getId())
+                .name(updated.getName())
+                .licenseNumber(updated.getLicenseNumber())
+                .status(updated.getStatus())
+                .build();
+    }
+
 }

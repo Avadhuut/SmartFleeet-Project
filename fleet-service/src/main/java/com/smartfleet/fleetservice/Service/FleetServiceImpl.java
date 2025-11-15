@@ -148,4 +148,29 @@ public class FleetServiceImpl implements FleetService {
                 fleet.getStatus()
         );
     }
+
+    @Override
+    public FleetResponse updateStatus(Long id, String status) {
+
+        log.info("Updating Fleet Status → id={}, newStatus={}", id, status);
+
+        Fleet fleet = repo.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Fleet not found for status update → id={}", id);
+                    return new FleetNotFoundException("Fleet not found with id: " + id);
+                });
+
+        fleet.setStatus(status);
+        Fleet updated = repo.save(fleet);
+
+        log.info("Fleet Status Updated → id={}, status={}", updated.getId(), updated.getStatus());
+
+        return new FleetResponse(
+                updated.getId(),
+                updated.getVehicleNumber(),
+                updated.getType(),
+                updated.getStatus()
+        );
+    }
+
 }

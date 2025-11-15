@@ -12,4 +12,7 @@ public interface DriverService {
     void delete(Long id);
 
     DriverResponse getById(Long id);
+
+    DriverResponse updateStatus(Long id, String status);
+
 }

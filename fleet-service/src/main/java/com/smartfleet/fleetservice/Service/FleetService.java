@@ -13,4 +13,7 @@ public interface FleetService {
 
     FleetResponse getById(Long id);
 
+    FleetResponse updateStatus(Long id, String status);
+
+
 }
