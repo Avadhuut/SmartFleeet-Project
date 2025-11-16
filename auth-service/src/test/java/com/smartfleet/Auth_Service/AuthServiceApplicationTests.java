@@ -1,4 +1,4 @@
-package com.smartfleet.auth;
+package com.smartfleet.Auth_Service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
